@@ -1,15 +1,14 @@
 package com.igorpavlenkov.spring.pringboot.springboot.dao;
 
 
-import com.igorpavlenkov.spring.pringboot.springboot.model.Role;
 import com.igorpavlenkov.spring.pringboot.springboot.model.User;
 import org.hibernate.Session;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.util.List;
 
 
@@ -17,14 +16,14 @@ import java.util.List;
 @Transactional
 public class UserDaoImpl implements UserDao {
 
-    @Autowired
+
+    @PersistenceContext
     private EntityManager entityManager;
 
 
-    @SuppressWarnings("unchecked")
     @Override
     public List<User> getAllUsers() {
-        return entityManager.unwrap(Session.class).createQuery("from User").getResultList();
+        return entityManager.unwrap(Session.class).createQuery("from User", User.class).getResultList();
     }
 
     @Override
@@ -36,28 +35,26 @@ public class UserDaoImpl implements UserDao {
     public void updateUser(User user) {
         user.setPassword(new BCryptPasswordEncoder().encode(user.getPassword()));
         entityManager.unwrap(Session.class).saveOrUpdate(user);
+        System.out.println("Пользователь обновлен!");
     }
 
     @Override
-    public void deleteUser(Long id) {
+    public void saveUser(User user) {
+        user.setPassword(new BCryptPasswordEncoder().encode(user.getPassword()));
+        entityManager.unwrap(Session.class).saveOrUpdate(user);
+        System.out.println("Пользователь создан!");
+    }
+
+    @Override
+    public void deleteUserById(Long id) {
         User user = getUserById(id);
         entityManager.unwrap(Session.class).delete(user);
+        System.out.println("Пользователь удален " + id);
     }
 
     @Override
     public User getUserByName(String username) {
         return entityManager.unwrap(Session.class).createQuery("from User where username = '" + username + "'", User.class).getSingleResult();
-    }
-
-    @Override
-    public Role getRoleByName(String name) {
-
-        return entityManager.unwrap(Session.class).createQuery("from Role where name = '" + name + "'", Role.class).getSingleResult();
-    }
-
-    @Override
-    public void addRole(Role role) {
-        entityManager.unwrap(Session.class).save(role);
     }
 
 }

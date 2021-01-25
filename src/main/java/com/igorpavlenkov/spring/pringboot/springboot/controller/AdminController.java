@@ -2,15 +2,14 @@ package com.igorpavlenkov.spring.pringboot.springboot.controller;
 
 import com.igorpavlenkov.spring.pringboot.springboot.model.Role;
 import com.igorpavlenkov.spring.pringboot.springboot.model.User;
+import com.igorpavlenkov.spring.pringboot.springboot.service.RoleService;
 import com.igorpavlenkov.spring.pringboot.springboot.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -22,6 +21,9 @@ public class AdminController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private RoleService roleService;
+
     private User user;
 
     @GetMapping(value = "users")
@@ -31,49 +33,44 @@ public class AdminController {
     }
 
 
-    @GetMapping(value = "newUser")
-    public String getUser() {
-        return "addUser";
+    @GetMapping(value = "user-create")
+    public String createUserForm(User user) {
+        return "user-create";
     }
 
-    @PostMapping(value = "new")
-    public String addNewUser(@RequestParam(value = "username") String username,
-                             @RequestParam(value = "password") String password,
-                             @RequestParam("role") String[] role) {
+    @PostMapping(value = "user-create")
+    public String createUser(User user)   {
         Set<Role> roleSet = new HashSet<>();
-        for (String roles : role) {
-            roleSet.add(userService.getRoleByName(roles));
+        for (Role roles : user.getRoles()) {
+            roleSet.add(roleService.getRoleByName(String.valueOf(roles)));
         }
-        userService.updateUser(new User(username, password, roleSet ));
+        userService.saveUser(new User(user.getUsername(),user.getPassword(),roleSet));
         return "redirect:users";
     }
 
 
-    @GetMapping("edit")
-    public String editPage(@RequestParam("id") Long id, ModelMap model){
+    @GetMapping("user-edit")
+    public String editUserForm(Long id, ModelMap model){
         model.addAttribute("user", userService.getUserById(id));
-        return "editUser";
+        return "user-edit";
     }
 
-    @PostMapping("editSave")
-    public String editUser(Model model,
-                           @RequestParam("id") Long id,
-                           @RequestParam("username") String username,
-                           @RequestParam("password") String password,
-                           @RequestParam("role") String[] role){
-        Set<Role> roleSet = new HashSet<>();
-        for (String roles : role) {
-            roleSet.add(userService.getRoleByName(roles));
+    @PostMapping("user-edit")
+    public String editUser(User user){
+        Set<Role> roleSetForEdit = new HashSet<>();
+        for (Role roles : user.getRoles()) {
+            roleSetForEdit.add(roleService.getRoleByName(String.valueOf(roles)));
         }
-        userService.updateUser(new User(id,username,password,roleSet));
+        user.setRoles(roleSetForEdit);
+        userService.updateUser(user);
         return "redirect:users";
     }
 
 
-    @GetMapping("delete")
-    public String deleteUser(@RequestParam(value = "id") String id) {
-        Long userId = Long.parseLong(id);
-        userService.deleteUser(userId);
+    @GetMapping("user-delete")
+    public String deleteUser(Long id) {
+        userService.deleteUserById(id);
         return "redirect:users";
     }
 }
+

@@ -1,6 +1,5 @@
-package com.igorpavlenkov.spring.pringboot.springboot.config;
+package com.igorpavlenkov.spring.pringboot.springboot.security;
 
-import com.igorpavlenkov.spring.pringboot.springboot.config.handler.LoginSuccessHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;

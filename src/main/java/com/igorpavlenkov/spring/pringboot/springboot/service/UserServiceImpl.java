@@ -1,7 +1,6 @@
 package com.igorpavlenkov.spring.pringboot.springboot.service;
 
 import com.igorpavlenkov.spring.pringboot.springboot.dao.UserDao;
-import com.igorpavlenkov.spring.pringboot.springboot.model.Role;
 import com.igorpavlenkov.spring.pringboot.springboot.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -11,6 +10,7 @@ import java.util.List;
 
 @Service
 public class UserServiceImpl implements UserService {
+
     @Autowired
     private UserDao userDao;
 
@@ -34,27 +34,20 @@ public class UserServiceImpl implements UserService {
 
     @Transactional
     @Override
-    public void deleteUser(Long id) {
-        userDao.deleteUser(id);
+    public void saveUser(User user) {
+        userDao.saveUser(user);
+    }
+
+    @Transactional
+    @Override
+    public void deleteUserById(Long id) {
+        userDao.deleteUserById(id);
     }
 
     @Transactional
     @Override
     public User getUserByName(String username) {
         return userDao.getUserByName(username);
-    }
-
-    @Transactional
-    @Override
-    public Role getRoleByName(String name) {
-
-        return userDao.getRoleByName(name);
-    }
-
-    @Transactional
-    @Override
-    public void addRole(Role role) {
-        userDao.addRole(role);
     }
 
 }
